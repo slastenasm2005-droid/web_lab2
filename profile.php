@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,8 +20,8 @@
         </a>
 
         <div>
-            <a href="posts.php" class="btn btn-primary">Posts</a>
-            <a href="index.php" class="btn btn-outline-danger">Exit</a>
+            <a href="index.php" class="btn btn-primary">Posts</a>
+            <a href="logout.php" class="btn btn-outline-danger">Exit</a>
         </div>
     </div>
 </nav>
@@ -49,7 +51,7 @@
     <div class="mt-5">
         <h2 class="text-center mb-4">Add New Post</h2>
 
-        <form action="posts.php" id="postForm" class="d-flex flex-column gap-3" method="POST" enctype="multipart/form-data">
+        <form action="profile.php" id="postForm" class="d-flex flex-column gap-3" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label class="form-label" for="postTitle">Post Title</label>
                 <input type="text" name="postTitle" class="form-control hacker-input" id="postTitle" placeholder="Enter post title" required>
@@ -74,3 +76,58 @@
 <script src="js/script.js"></script>
 </body>
 </html>
+
+<?php
+
+require_once('db.php');
+
+$link = mysqli_connect("127.0.0.1", "root", "kali", "first");
+
+if (!$link) {
+    die("Ошибка подключения к базе данных");
+}
+
+if (isset($_POST['submit'])) {
+
+    $title = $_POST['postTitle'];
+    $main_text = $_POST['postContent'];
+    $image = "";
+
+    if (!$title || !$main_text) {
+        die("Введите название и текст поста");
+    }
+
+    if (!empty($_FILES["file"]["name"])) {
+
+        if (
+            (($_FILES["file"]["type"] == "image/gif") ||
+            ($_FILES["file"]["type"] == "image/jpeg") ||
+            ($_FILES["file"]["type"] == "image/jpg") ||
+            ($_FILES["file"]["type"] == "image/png") ||
+            ($_FILES["file"]["type"] == "image/webp"))
+            &&
+            ($_FILES["file"]["size"] < 1024000)
+        ) {
+            $image = "upload/" . $_FILES["file"]["name"];
+
+            move_uploaded_file(
+                $_FILES["file"]["tmp_name"],
+                $image
+            );
+        } else {
+            die("Ошибка загрузки файла");
+        }
+    }
+
+    $sql = "INSERT INTO posts(title, main_text, image) 
+            VALUES('$title', '$main_text', '$image')";
+
+    if (!mysqli_query($link, $sql)) {
+        die("Ошибка добавления поста");
+    }
+
+    header("Location: index.php");
+    exit();
+}
+
+?>

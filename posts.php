@@ -1,3 +1,33 @@
+<?php
+
+$link = mysqli_connect("127.0.0.1", "root", "kali", "first");
+
+if (!$link) {
+    die("Ошибка подключения к базе данных");
+}
+
+if (!isset($_GET['id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$id = $_GET['id'];
+
+$sql = "SELECT * FROM posts WHERE id=$id";
+$res = mysqli_query($link, $sql);
+
+if (!$res || mysqli_num_rows($res) == 0) {
+    die("Пост не найден");
+}
+
+$post = mysqli_fetch_array($res);
+
+$title = $post['title'];
+$main_text = $post['main_text'];
+$image = $post['image'];
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,25 +52,16 @@
 
 <div class="container mt-5">
 
-    <h1>Posts</h1>
+    <div class="post-card text-center">
+        <h1><?php echo $title; ?></h1>
 
-    <div class="post-card">
-        <h2>A Fly Is Also A Helicopter</h2>
+        <p><?php echo $main_text; ?></p>
 
-        <p>
-            Science says it is just a fly.
-            Imagination says it is a tiny helicopter.
-            In FlyVerse, both answers are correct.
-        </p>
-    </div>
-
-    <div class="post-card">
-        <h2>About This Website</h2>
-
-        <p>
-            This website was created by Smirnova Anastasia as a simple web project
-            with registration, login, profile and posts pages.
-        </p>
+        <?php
+        if (!empty($image)) {
+            echo "<img src='$image' class='hacker-img mt-3' alt='post image'>";
+        }
+        ?>
     </div>
 
 </div>
